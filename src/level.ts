@@ -23,7 +23,7 @@ import {
   print,
   myBasestat,
 } from 'kolmafia';
-import { $effect, $familiar, $item, $location, $monster, $skill, $stat, get } from 'libram/src';
+import { $effect, $familiar, $item, $location, $monster, $skill, $stat, get } from 'libram';
 import { MODE_MACRO, MODE_NULL, adventureCopy, setMode, Macro, adventureMacro } from './combat';
 import { intro } from './intro';
 import {
@@ -164,7 +164,7 @@ export function level(useResources = true) {
 
   // LOV Tunnel
   if (get('loveTunnelAvailable') && !getPropertyBoolean('_loveTunnelUsed') && useResources) {
-    useFamiliar($familiar`Hovering Sombrero`);
+    useFamiliar($familiar`Galloping Grill`);
     const macro = Macro.if_(
       'monstername LOV Enforcer',
       Macro.while_('!pastround 20 && !hpbelow 200', Macro.attack().repeat()).kill()
@@ -239,7 +239,7 @@ export function level(useResources = true) {
       visitUrl('council.php');
       cliExecute('leaflet');
     }
-    useFamiliar($familiar`Hovering Sombrero`);
+    useFamiliar($familiar`Galloping Grill`);
     maximizeCached('mainstat, 4exp, equip makeshift garbage shirt');
     setChoice(1324, 5);
     levelMood();

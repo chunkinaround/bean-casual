@@ -1,5 +1,5 @@
 import { cliExecute, visitUrl, availableAmount, runChoice, getProperty, setProperty, use } from 'kolmafia';
-import { $item } from 'libram/src';
+import { $item } from 'libram';
 import { setClan, tryUse, getCapped } from './lib';
 
 export function intro() {
@@ -42,4 +42,8 @@ export function intro() {
 
   setProperty('hpAutoRecovery', '0.8');
   setProperty('hpAutoRecovery', '0.3');
+  setProperty('autoSatisfyWithNPCs', 'true');
+  if (getProperty('_bittycar') == '') {
+    use($item`BittyCar SoulCar`);
+  }
 }

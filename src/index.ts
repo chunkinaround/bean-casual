@@ -11,11 +11,55 @@ import {
   fileToBuffer,
   myInebriety,
   myFullness,
+  friarsAvailable,
+  use,
+  council,
 } from 'kolmafia';
+import { rawListeners } from 'node:process';
 import { intro } from './intro';
 import { level } from './level';
 import { getPropertyBoolean } from './lib';
-import { billiards, war, dailyDungeon, ores, bridge, aboo, blackForest, shen, airship } from './quests';
+import {
+  billiards,
+  war,
+  dailyDungeon,
+  ores,
+  bridge,
+  aboo,
+  blackForest,
+  shen,
+  airship,
+  bossbat,
+  prezeppelin,
+  trapperpeak,
+  friars,
+  goblinking,
+  twinpeak,
+  UnlockTemple,
+  spookyLevel2,
+  steelmarg,
+  mosquito,
+  hiddencity,
+  opencity,
+  spookylibrary,
+  wallofskin,
+  wallofmeat,
+  wallofbones,
+  shadow,
+  ns,
+  crypt,
+  giants,
+  shen2,
+  ron,
+  lordspooks,
+  oilpeak,
+  cranny,
+  rats,
+  desert,
+  palindrome,
+  pyramid,
+  sorceressTowerTest,
+} from './quests';
 
 export function main() {
   setProperty('bcas_objective', '');
@@ -36,7 +80,7 @@ export function main() {
 
   intro();
   level();
-
+  council();
   print('Refreshing council quests...');
   visitUrl('council.php');
 
@@ -69,9 +113,39 @@ export function main() {
   aboo();
   blackForest();
   shen();
+  spookylibrary();
+  //spookyLevel2();
+  bossbat();
+  prezeppelin();
+  trapperpeak();
+  goblinking();
+  friars();
+  steelmarg();
+  twinpeak();
+  mosquito();
+  giants();
+  shen2();
+  UnlockTemple();
+  crypt();
+  spookyLevel2();
+  lordspooks();
+  oilpeak();
+  cranny();
+  rats();
+  opencity();
+  hiddencity();
+  ron();
+  palindrome();
+  desert();
+  pyramid();
+  sorceressTowerTest();
+  wallofskin();
+  wallofmeat();
+  wallofbones();
+  shadow();
+  ns();
 
   setProperty('auto_abooclover', 'true');
   setProperty('auto_interrupt', 'false');
-
-  cliExecute('autoscend');
+  //cliExecute('autoscend');
 }

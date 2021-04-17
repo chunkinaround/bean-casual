@@ -24,7 +24,7 @@ import {
   visitUrl,
   removeProperty,
 } from 'kolmafia';
-import { $skill, $familiar, $effect, Macro as LibramMacro, set, get } from 'libram/src';
+import { $skill, $familiar, $effect, Macro as LibramMacro, set, get } from 'libram';
 import { getPropertyInt, myFamiliarWeight, setPropertyInt } from './lib';
 
 // multiFight() stolen from Aenimus: https://github.com/Aenimus/aen_cocoabo_farm/blob/master/scripts/aen_combat.ash.
@@ -66,6 +66,7 @@ export const MODE_NULL = '';
 export const MODE_MACRO = 'macro';
 export const MODE_FIND_MONSTER_THEN = 'findthen';
 export const MODE_RUN_UNLESS_FREE = 'rununlessfree';
+export const MODE_RUN_UNLESS_MONSTER = 'rununlessmon';
 
 export function setMode(mode: string, arg1: string | null = null, arg2: string | null = null) {
   setProperty('bcas_combatMode', mode);
@@ -142,9 +143,17 @@ export function main(initialRound: number, foe: Monster) {
       }
       // At this point it comes back to the consult script.
     }
+  } else if (mode === MODE_RUN_UNLESS_MONSTER) {
+    const monsterId = parseInt(getArg1(), 10);
+    const desired = toMonster(monsterId);
+    if (foe === desired) {
+      print('foe found.');
+      Macro.load().submit();
+    } else print('foe not found');
+    runaway();
   } else if (mode === MODE_RUN_UNLESS_FREE) {
     if (foe.attributes.includes('FREE')) {
-      Macro.load().submit();
+      Macro.kill();
     } else if (
       myFamiliar() === $familiar`Frumious Bandersnatch` &&
       haveEffect($effect`Ode to Booze`) > 0 &&
@@ -195,7 +204,7 @@ export function adventureMacro(loc: Location, macro: Macro) {
   }
 }
 
-function findMonsterThen(loc: Location, foe: Monster, macro: Macro) {
+export function findMonsterThen(loc: Location, foe: Monster, macro: Macro) {
   macro.save();
   setMode(MODE_FIND_MONSTER_THEN, foe.id.toString());
   try {
@@ -228,4 +237,19 @@ export function adventureRunUnlessFree(loc: Location) {
   setMode(MODE_RUN_UNLESS_FREE);
   adv1(loc, -1, '');
   setMode(MODE_NULL);
+}
+
+export function adventurefindMonsterElseRun(loc: Location, foe: Monster, macro: Macro) {
+  macro.save();
+  setMode(MODE_RUN_UNLESS_MONSTER, foe.id.toString());
+  try {
+    set('bcas_combatFound', false);
+    while (!get<boolean>('bcas_combatFound')) {
+      adv1(loc, -1, '');
+    }
+  } finally {
+    removeProperty('bcas_combatFound');
+    setMode(MODE_NULL, '');
+    Macro.clearSaved();
+  }
 }

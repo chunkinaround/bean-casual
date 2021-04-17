@@ -29,11 +29,31 @@ import {
   visitUrl,
   maximize,
   myBasestat,
+  create,
+  getFuel,
 } from 'kolmafia';
-import { $effect, $skill, $stat } from 'libram/src';
+import { $effect, $skill, $stat, $item } from 'libram';
 
 export function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(n, max));
+}
+
+export function ensureItem(quantity: number, it: Item) {
+  if (availableAmount(it) < quantity) {
+    buy(quantity - availableAmount(it), it);
+  }
+  if (availableAmount(it) < quantity) {
+    throw `Could not buy ${quantity} of item ${it.name}: only ${availableAmount(it)}.`;
+  }
+}
+
+export function ensureCreateItem(quantity: number, it: Item) {
+  if (availableAmount(it) < quantity) {
+    create(quantity - availableAmount(it), it);
+  }
+  if (availableAmount(it) < quantity) {
+    throw 'Could not create item.';
+  }
 }
 
 export function getPropertyString(name: string, def: string) {
@@ -277,4 +297,40 @@ export function questStep(questName: string) {
     }
     return parseInt(stringStep.substring(4), 10);
   }
+}
+
+export function ensureDough(goal: number) {
+  while (availableAmount($item`wad of dough`) < goal) {
+    buy(1, $item`all-purpose flower`);
+    use(1, $item`all-purpose flower`);
+  }
+}
+
+export function fuelAsdon(goal: number) {
+  const startingFuel = getFuel();
+  if (startingFuel > goal) return startingFuel;
+
+  print(`Fueling asdon. Currently ${startingFuel} litres.`);
+  const estimated = Math.floor((goal - startingFuel) / 5);
+  const bread = availableAmount($item`loaf of soda bread`);
+  ensureDough(estimated - bread);
+  ensureItem(estimated - bread, $item`soda water`);
+  ensureCreateItem(estimated, $item`loaf of soda bread`);
+  cliExecute(`asdonmartin fuel ${estimated} loaf of soda bread`);
+  while (getFuel() < goal) {
+    ensureDough(1);
+    ensureItem(1, $item`soda water`);
+    ensureCreateItem(1, $item`loaf of soda bread`);
+    cliExecute('asdonmartin fuel 1 loaf of soda bread');
+  }
+  const endingFuel = getFuel();
+  print(`Done fueling. Now ${endingFuel} litres.`);
+  return endingFuel;
+}
+
+export function ensureAsdonEffect(ef: Effect) {
+  if (haveEffect(ef) === 0) {
+    fuelAsdon(37);
+  }
+  ensureEffect(ef);
 }
