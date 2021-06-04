@@ -153,7 +153,8 @@ export function main(initialRound: number, foe: Monster) {
     runaway();
   } else if (mode === MODE_RUN_UNLESS_FREE) {
     if (foe.attributes.includes('FREE')) {
-      Macro.kill();
+      print(getProperty('libram_savedMacro'));
+      Macro.load().submit();
     } else if (
       myFamiliar() === $familiar`Frumious Bandersnatch` &&
       haveEffect($effect`Ode to Booze`) > 0 &&

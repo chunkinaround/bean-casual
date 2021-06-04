@@ -301,6 +301,7 @@ export function blackForest() {
 export function shen() {
   if (questStep('questL11Shen') < 1) {
     maximizeCached('mainstat');
+    Macro.kill().save();
     adventureRunUnlessFree($location`The Copperhead Club`);
   }
 }
@@ -362,6 +363,7 @@ export function friars() {
     while (itemAmount($item`dodecagram`) < 1) {
       moodNoncombat();
       maximizeCached('-combat, +equip Greatest American Pants');
+      Macro.kill().save();
       adventureRunUnlessFree($location`The Dark Neck of the Woods`);
       cliExecute('refresh inv');
     }
@@ -385,6 +387,7 @@ export function friars() {
 export function goblinking() {
   if (questStep('questL05Goblin') < 2) {
     while (itemAmount($item`Knob Goblin encryption key`) < 1 && questStep('questL05Goblin') === 0) {
+      Macro.kill().save();
       adventureRunUnlessFree($location`The Outskirts of Cobb's Knob`);
       cliExecute('refresh inv');
     }
@@ -556,6 +559,7 @@ export function twinpeak() {
 export function mosquito() {
   setChoice(502, 2);
   setChoice(505, 1);
+  Macro.kill().save();
   while (questStep('questL02Larva') == 0) {
     if ($location`The Spooky Forest`.turnsSpent > 5) {
       moodNoncombat();
@@ -770,6 +774,7 @@ export function spookyLevel2() {
     while (itemAmount($item`Lady Spookyraven's dancing shoes`) < 1) {
       moodNoncombat();
       maximizeCached('-combat, +equip greatest american pants, +equip kramco');
+      Macro.kill().save();
       adventureRunUnlessFree($location`The Haunted Gallery`);
       cliExecute('refresh inv');
     }
@@ -783,6 +788,7 @@ export function spookyLevel2() {
           .if_('monstername Wardröb nightstand', Macro.item('Louder Than Bomb'))
           .if_('monstername animated ornate nightstand', Macro.kill())
           .if_('monstername elegant animated nightstand', Macro.kill())
+          .kill()
       );
     }
     if (
@@ -794,6 +800,7 @@ export function spookyLevel2() {
     }
   }
   while (questStep('questM21Dance') == 3) {
+    Macro.kill().save();
     adventureRunUnlessFree($location`The Haunted Ballroom`);
   }
 }
@@ -942,8 +949,10 @@ export function unlockspookyL2() {
 export function giants() {
   if (questStep('questL10Garbage') < 99) {
     useFamiliar($familiar`Disgeist`);
+    Macro.kill().save();
   }
   while (questStep('questL10Garbage') == 7) {
+    maximizeCached('-combat, +equip Greatest American Pants, +equip amulet of extreme plot significance');
     adventureRunUnlessFree($location`The Castle in the Clouds in the Sky (Basement)`);
   }
   useFamiliar($familiar`Artistic Goth Kid`);
@@ -964,6 +973,7 @@ export function shen2() {
     }
   }
   while (questStep('questL11Shen') == 2 && itemAmount($item`The Stankara Stone`) == 1) {
+    Macro.kill().save();
     adventureRunUnlessFree($location`The Copperhead Club`);
   }
   if (getProperty('shenQuestItem') == 'The First Pizza') {
@@ -980,11 +990,14 @@ export function shen2() {
     }
   }
   while (questStep('questL11Shen') == 4 && itemAmount($item`The First Pizza`) == 1) {
+    Macro.kill().save();
     adventureRunUnlessFree($location`The Copperhead Club`);
   }
   if (getProperty('shenQuestItem') == "Murphy's Rancid Black Flag") {
     setChoice(677, 1); // Copper Feel use airshop
+    setChoice(678, 1); //get the punks attention
     retrieveItem(1, $item`mohawk wig`);
+    setChoice(1431, 4); // go to punks choice
     while (itemAmount($item`Murphy's Rancid Black Flag`) == 0) {
       moodNoncombat();
       maximizeCached('-combat, +equip Greatest American Pants, +equip mohawk wig');
@@ -995,6 +1008,7 @@ export function shen2() {
     }
   }
   while (questStep('questL11Shen') == 6 && itemAmount($item`Murphy's Rancid Black Flag`) == 1) {
+    Macro.kill().save();
     adventureRunUnlessFree($location`The Copperhead Club`);
   }
 }
@@ -1020,6 +1034,7 @@ export function lordspooks() {
   if (questStep('questM21Dance') == 999 && questStep('questL11Manor') == 0) {
     print('lordspooks2');
     while (questStep('questL11Manor') == 0) {
+      Macro.kill().save();
       adventureRunUnlessFree($location`The Haunted Ballroom`);
     }
   }
@@ -1236,6 +1251,7 @@ export function desert() {
           )
           .kill()
       );
+      cliExecute('refresh inv');
     }
     retrieveItem($item`killing jar`);
     retrieveItem($item`can of black paint`);
@@ -1248,6 +1264,9 @@ export function desert() {
     visitUrl('choice.php?whichchoice=805&option=1&pwd=');
     use($item`desert sightseeing pamphlet`, 2);
     use($item`drum machine`, 1);
+    if (getPropertyInt('desertExploration') < 100) {
+      abort('failed to finish the desert after using the drum machine?');
+    }
   }
 }
 
@@ -1260,6 +1279,7 @@ export function pyramid() {
   }
   moodNoncombat();
   maximizeCached('-combat, +equip Greatest American Pants');
+  Macro.kill().save();
   while (questStep('questL11Pyramid') < 1) {
     adventureRunUnlessFree($location`The Upper Chamber`);
   }
