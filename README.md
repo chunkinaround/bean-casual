@@ -2,4 +2,4 @@
 
 Casual script for Kingdom of Loathing.
 
-`svn checkout https://github.com/phulin/bean-casual/branches/main/KoLmafia`
+`svn checkout https://github.com/chunkinaround/bean-casual/branches/ts/KoLmafia`
