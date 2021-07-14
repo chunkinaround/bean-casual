@@ -6,9 +6,6 @@ import {
   clamp,
   drinkSafe,
   ensureEffect,
-  get as getItem,
-  getPropertyBoolean,
-  getPropertyInt,
   questStep,
   maximizeCached,
   setChoice,
@@ -18,7 +15,7 @@ import {
   getCapped,
   shrug,
   ensureAsdonEffect,
-  fuelAsdon,
+  acquire,
 } from './lib';
 import {
   myMp,
@@ -61,8 +58,7 @@ import {
   myHash,
   containsText,
 } from 'kolmafia';
-import { $item, $skill, $location, $familiar, $effect, $monster, get, set, have, $slot } from 'libram';
-import { Z_ASCII } from 'node:zlib';
+import { $item, $skill, $location, $familiar, $effect, $monster, get, set, $slot } from 'libram';
 
 export function moodBaseline() {
   if (myMp() < 200) {
@@ -91,7 +87,7 @@ export function moodNoncombat() {
   ensureAsdonEffect($effect`Driving Stealthily`);
   tryEnsureSkill($skill`The Sonata of Sneakiness`);
   tryEnsureSkill($skill`Smooth Movement`);
-  if (getPropertyBoolean('horseryAvailable') && getProperty('_horsery') !== 'dark horse') cliExecute('horsery dark');
+  if (get('horseryAvailable') && getProperty('_horsery') !== 'dark horse') cliExecute('horsery dark');
 }
 
 export function addFamiliarWeight() {
@@ -154,7 +150,7 @@ export function airship() {
 
       while (
         questStep('questL10Garbage') < 7 &&
-        getPropertyInt('_banderRunaways') < Math.floor(myFamiliarWeight / 5) &&
+        get('_banderRunaways') < Math.floor(myFamiliarWeight / 5) &&
         (freeRunFamiliar !== $familiar`Frumious Bandersnatch` || tryEnsureSong($skill`The Ode to Booze`))
       ) {
         moodNoncombat();
@@ -178,7 +174,7 @@ function ensureFluffers(flufferCount: number) {
   const [stuffingFlufferSource, sourceMultiplier] = stuffingFlufferSources[0];
 
   const neededOfSource = Math.ceil(neededFluffers * sourceMultiplier);
-  getItem(neededOfSource, stuffingFlufferSource);
+  acquire(neededOfSource, stuffingFlufferSource);
   if (stuffingFlufferSource === $item`cornucopia`) {
     use(neededOfSource, $item`cornucopia`);
   }
@@ -202,12 +198,12 @@ export function war() {
     adventureRunUnlessFree($location`Hippy Camp`);
   }
 
-  if (getPropertyInt('hippiesDefeated') < 1000) {
-    const count = clamp((1000 - getPropertyInt('hippiesDefeated')) / 46, 0, 24);
+  if (get('hippiesDefeated') < 1000) {
+    const count = clamp((1000 - get('hippiesDefeated')) / 46, 0, 24);
 
     ensureFluffers(count);
     use(count, $item`stuffing fluffer`);
-    while (getPropertyInt('hippiesDefeated') < 1000) {
+    while (get('hippiesDefeated') < 1000) {
       ensureFluffers(1);
       use(1, $item`stuffing fluffer`);
     }
@@ -226,7 +222,7 @@ export function war() {
 }
 
 export function dailyDungeon() {
-  while (availableAmount($item`fat loot token`) < 2 && !getPropertyBoolean('dailyDungeonDone')) {
+  while (availableAmount($item`fat loot token`) < 2 && !get('dailyDungeonDone')) {
     if (availableAmount($item`fat loot token`) === 0) {
       getCapped(1, $item`daily dungeon malware`, 40000);
     }
@@ -253,8 +249,8 @@ export function ores() {
 }
 
 export function bridge() {
-  if (getPropertyInt('chasmBridgeProgress') < 30) {
-    const count = (34 - getPropertyInt('chasmBridgeProgress')) / 5;
+  if (get('chasmBridgeProgress') < 30) {
+    const count = (34 - get('chasmBridgeProgress')) / 5;
     getCapped(count, $item`smut orc keepsake box`, 20000);
     use(count, $item`smut orc keepsake box`);
     visitUrl(`place.php?whichplace=orc_chasm&action=bridge${getProperty('chasmBridgeProgress')}`);
@@ -262,22 +258,22 @@ export function bridge() {
 }
 
 export function aboo() {
-  let theoreticalProgress = getPropertyInt('booPeakProgress') - 30 * availableAmount($item`A-Boo Clue`);
+  let theoreticalProgress = get('booPeakProgress') - 30 * availableAmount($item`A-Boo Clue`);
   while (theoreticalProgress > 0) {
     // while blasts through intro adventure here...
     retrieveItem(1, $item`ten-leaf clover`);
     setProperty('cloverProtectActive', 'false');
     adv1($location`A-Boo Peak`, -1, '');
     setProperty('cloverProtectActive', 'true');
-    theoreticalProgress = getPropertyInt('booPeakProgress') - 30 * availableAmount($item`A-Boo Clue`);
+    theoreticalProgress = get('booPeakProgress') - 30 * availableAmount($item`A-Boo Clue`);
   }
 
-  while (getPropertyInt('booPeakProgress') > 0 && availableAmount($item`A-Boo Clue`) > 0) {
+  while (get('booPeakProgress') > 0 && availableAmount($item`A-Boo Clue`) > 0) {
     maximizeCached('0.1hp, spooky res, cold res');
     use(1, $item`A-Boo Clue`);
     adv1($location`A-Boo Peak`, -1, '');
   }
-  if (getPropertyBoolean('booPeakLit') == false) {
+  if (get('booPeakLit') == false) {
     adv1($location`A-Boo Peak`, -1, '');
   }
 }
@@ -517,7 +513,7 @@ export function steelmarg() {
 }
 
 export function twinpeak() {
-  if (getPropertyInt('twinPeakProgress') == 0) {
+  if (get('twinPeakProgress') == 0) {
     setProperty('choiceAdventure604', '1'); //welcome NC to twin peak step 1 = "continue"
     setProperty('choiceAdventure605', '1'); //welcome NC to twin peak step 2 = "everything goes black"
     setProperty('choiceAdventure607', '1'); //finish stench / room 237
@@ -530,23 +526,23 @@ export function twinpeak() {
     retrieveItem(4, $item`rusty hedge trimmer`);
   }
 
-  if (getPropertyInt('twinPeakProgress') == 0) {
+  if (get('twinPeakProgress') == 0) {
     cliExecute('maximize stench res');
     setProperty('choiceAdventure606', '1');
     cliExecute('use rusty hedge trimmer');
   }
 
-  if (getPropertyInt('twinPeakProgress') == 1) {
+  if (get('twinPeakProgress') == 1) {
     cliExecute('maximize item');
     setProperty('choiceAdventure606', '2');
     cliExecute('use rusty hedge trimmer');
   }
-  if (getPropertyInt('twinPeakProgress') == 3) {
+  if (get('twinPeakProgress') == 3) {
     cliExecute('acquire jar of oil');
     setProperty('choiceAdventure606', '3');
     cliExecute('use rusty hedge trimmer');
   }
-  if (getPropertyInt('twinPeakProgress') == 7) {
+  if (get('twinPeakProgress') == 7) {
     cliExecute('maximize init, -equip helps-you-sleep');
     setProperty('choiceAdventure606', '4');
     cliExecute('use rusty hedge trimmer');
@@ -663,7 +659,7 @@ export function hiddencity() {
   equip($item`dromedary drinking helmet`);
   if (questStep('questL11Worship') == 3) {
     equip($item`antique machete`);
-    if (getPropertyInt('hiddenTavernUnlock') != myAscensions()) {
+    if (get('hiddenTavernUnlock') != myAscensions()) {
       use($item`book of matches`);
     }
     while (questStep('questL11Business') == -1) {
@@ -712,7 +708,7 @@ export function hiddencity() {
   }
   if (questStep('questL11Business') == 0) {
     setChoice(786, 1);
-    if (getPropertyBoolean('_latteBanishUsed')) {
+    if (get('_latteBanishUsed')) {
       cliExecute('latte refill vanilla ink pumpkin');
     }
     equip($item`Latte lovers member's mug`);
@@ -724,16 +720,16 @@ export function hiddencity() {
       );
     }
   }
-  if (getPropertyInt('hiddenOfficeProgress') == 7) {
+  if (get('hiddenOfficeProgress') == 7) {
     adv1($location`An Overgrown Shrine (Northeast)`, -1, '');
   }
-  if (getPropertyInt('hiddenApartmentProgress') == 7) {
+  if (get('hiddenApartmentProgress') == 7) {
     adv1($location`An Overgrown Shrine (Northwest)`, -1, '');
   }
-  if (getPropertyInt('hiddenBowlingAlleyProgress') == 7) {
+  if (get('hiddenBowlingAlleyProgress') == 7) {
     adv1($location`An Overgrown Shrine (Southeast)`, -1, '');
   }
-  if (getPropertyInt('hiddenHospitalProgress') == 7) {
+  if (get('hiddenHospitalProgress') == 7) {
     adv1($location`An Overgrown Shrine (Southwest)`, -1, '');
   }
   if (questStep('questL11Worship') == 4) {
@@ -815,7 +811,7 @@ export function wallofskin() {
     equip($item`hot plate`);
     equip($item`bottle opener belt buckle`, $slot`acc1`);
     equip($item`hippy protest button`, $slot`acc1`);
-    if (getPropertyBoolean('horseryAvailable') && getProperty('_horsery') !== 'pale horse') cliExecute('horsery pale');
+    if (get('horseryAvailable') && getProperty('_horsery') !== 'pale horse') cliExecute('horsery pale');
     //Wall of Skin killing Effects
     ensureEffect($effect`Chalky Hand`);
     ensureEffect($effect`Jalapeño Saucesphere`);
@@ -1023,7 +1019,7 @@ export function ron() {
       $location`The Red Zeppelin`,
       Macro.if_('monstername Red Snapper', Macro.item('divine champagne popper'))
         .if_('monstername Red Herring', Macro.item('Louder Than Bomb'))
-        .externalIf(getPropertyInt('_glarkCableUses') < 5, Macro.item('glark cable'))
+        .externalIf(get('_glarkCableUses') < 5, Macro.item('glark cable'))
         .kill()
     );
   }
@@ -1053,11 +1049,11 @@ export function lordspooks() {
     tryEnsureSkill($skill`Singer's Faithful Ocelot`);
     tryEnsureSkill($skill`The Spirit of Taking`);
     ensureAsdonEffect($effect`Driving Observantly`);
-    if (getPropertyBoolean('_legendaryBeat') == false) {
+    if (get('_legendaryBeat') == false) {
       ensureEffect($effect`Clyde's Blessing`);
     }
     ensureEffect($effect`items.enh`);
-    if (getPropertyBoolean('_steelyEyedSquintUsed') == false) {
+    if (get('_steelyEyedSquintUsed') == false) {
       ensureEffect($effect`Steely-Eyed Squint`);
     }
     while (
@@ -1094,11 +1090,11 @@ export function lordspooks() {
           $location`The Haunted Boiler Room`,
           Macro.if_(
             'monstername coaltergeist',
-            Macro.externalIf(getPropertyInt('_macrometeoriteUses') < 10, Macro.skill($skill`Macrometeorite`)).kill()
+            Macro.externalIf(get('_macrometeoriteUses') < 10, Macro.skill($skill`Macrometeorite`)).kill()
           )
             .if_(
               'monstername steam elemental',
-              Macro.externalIf(getPropertyInt('_macrometeoriteUses') < 10, Macro.skill($skill`Macrometeorite`)).kill()
+              Macro.externalIf(get('_macrometeoriteUses') < 10, Macro.skill($skill`Macrometeorite`)).kill()
             )
             .if_('monstername monstrous boiler', Macro.kill())
         );
@@ -1114,19 +1110,19 @@ export function lordspooks() {
 }
 
 export function oilpeak() {
-  if (getPropertyInt('oilPeakProgress') > 0) {
+  if (get('oilPeakProgress') > 0) {
     maximizeCached('ml');
-    while (getPropertyInt('oilPeakProgress') > 0) {
+    while (get('oilPeakProgress') > 0) {
       adventureMacro($location`Oil Peak`, Macro.kill());
     }
   }
-  while (getPropertyBoolean('oilPeakLit') == false) {
+  while (get('oilPeakLit') == false) {
     adv1($location`Oil Peak`, -1, '');
   }
   if (
-    getPropertyBoolean('oilPeakLit') == true &&
-    getPropertyBoolean('booPeakLit') == true &&
-    getPropertyInt('twinPeakProgress') == 15 &&
+    get('oilPeakLit') == true &&
+    get('booPeakLit') == true &&
+    get('twinPeakProgress') == 15 &&
     questStep('questL09Topping') == 1
   ) {
     visitUrl('place.php?whichplace=highlands&action=highlands_dude');
@@ -1135,16 +1131,16 @@ export function oilpeak() {
 }
 
 export function cranny() {
-  if (getPropertyInt('cyrptCrannyEvilness') > 0) {
+  if (get('cyrptCrannyEvilness') > 0) {
     maximizeCached('ml');
     moodNoncombat();
     setChoice(523, 4);
     ensureEffect($effect`Invisible Avatar`);
-    while (getPropertyInt('cyrptCrannyEvilness') > 0) {
+    while (get('cyrptCrannyEvilness') > 0) {
       adventureMacro($location`The Defiled Cranny`, Macro.kill());
     }
   }
-  if (getPropertyInt('cyrptTotalEvilness') == 0 && questStep('questL07Cyrptic') < 999) {
+  if (get('cyrptTotalEvilness') == 0 && questStep('questL07Cyrptic') < 999) {
     adventureMacro($location`Haert of the Cyrpt`, Macro.kill());
   }
 }
@@ -1208,7 +1204,7 @@ export function palindrome() {
           .if_('monstername Tan Gnat', Macro.skill('Shattering Punch'))
           .if_(
             'monstername Flock of Stab-bats',
-            Macro.externalIf(getPropertyInt('_macrometeoriteUses') < 10, Macro.skill($skill`Macrometeorite`)).kill()
+            Macro.externalIf(get('_macrometeoriteUses') < 10, Macro.skill($skill`Macrometeorite`)).kill()
           )
           .kill()
       );
@@ -1237,18 +1233,15 @@ export function palindrome() {
   }
 }
 export function desert() {
-  if (getPropertyInt('desertExploration') < 100) {
+  if (get('desertExploration') < 100) {
     useFamiliar($familiar`Melodramedary`);
     equip($item`dromedary drinking helmet`);
     equip($item`Lil' Doctor™ bag`, $slot`acc1`);
     while (itemAmount($item`Worm-riding manual page`) < 15) {
       adventureMacro(
         $location`The Arid, Extra-Dry Desert`,
-        Macro.externalIf(getPropertyInt('_chestXRayUsed') < 3, Macro.skill($skill`Chest X-Ray`))
-          .externalIf(
-            getPropertyBoolean('_gingerbreadMobHitUsed') == false,
-            Macro.skill($skill`Gingerbread Mob Hit`).kill()
-          )
+        Macro.externalIf(get('_chestXRayUsed') < 3, Macro.skill($skill`Chest X-Ray`))
+          .externalIf(get('_gingerbreadMobHitUsed') == false, Macro.skill($skill`Gingerbread Mob Hit`).kill())
           .kill()
       );
       cliExecute('refresh inv');
@@ -1264,7 +1257,7 @@ export function desert() {
     visitUrl('choice.php?whichchoice=805&option=1&pwd=');
     use($item`desert sightseeing pamphlet`, 2);
     use($item`drum machine`, 1);
-    if (getPropertyInt('desertExploration') < 100) {
+    if (get('desertExploration') < 100) {
       abort('failed to finish the desert after using the drum machine?');
     }
   }
@@ -1294,11 +1287,11 @@ export function pyramid() {
     );
     retrieveItem($item`tangle of rat tails`);
   }
-  if (getPropertyBoolean('pyramidBombUsed') == false) {
+  if (get('pyramidBombUsed') == false) {
     var wheel: number = 10 - itemAmount($item`Crumbling Wooden Wheel`);
     retrieveItem($item`tomb ratchet`, wheel);
     var total: number = itemAmount($item`Crumbling Wooden Wheel`) + itemAmount($item`tomb ratchet`);
-    if (total >= 10 && myAdventures() >= 4 && getPropertyBoolean('controlRoomUnlock') == true) {
+    if (total >= 10 && myAdventures() >= 4 && get('controlRoomUnlock') == true) {
       visitUrl('place.php?whichplace=pyramid&action=pyramid_control');
       var x: number = 0;
       while (x < 10) {
@@ -1327,25 +1320,25 @@ export function pyramid() {
 
 export function sorceressTowerTest() {
   council();
-  if (getPropertyInt('nsContestants1') == -1) {
+  if (get('nsContestants1') == -1) {
     maximizeCached('init, -equip Helps-You-Sleep');
     visitUrl('place.php?whichplace=nstower&action=ns_01_contestbooth');
     visitUrl('choice.php?pwd=&whichchoice=1003&option=1', true);
   }
-  if (getPropertyInt('nsContestants2') == -1) {
+  if (get('nsContestants2') == -1) {
     var statGoal: string = getProperty('nsChallenge1');
     maximizeCached(statGoal);
     cliExecute('gain 600 ' + statGoal + ' 5000 maxmeatspent');
     visitUrl('place.php?whichplace=nstower&action=ns_01_contestbooth');
     visitUrl('choice.php?pwd=&whichchoice=1003&option=2', true);
   }
-  if (getPropertyInt('nsContestants3') == -1) {
+  if (get('nsContestants3') == -1) {
     var elemGoal: string = getProperty('nsChallenge2');
     maximizeCached(elemGoal + ' damage, ' + elemGoal + ' spell damage');
     visitUrl('place.php?whichplace=nstower&action=ns_01_contestbooth');
     visitUrl('choice.php?pwd=&whichchoice=1003&option=3', true);
   }
-  while (getPropertyInt('nsContestants1') > 0) {
+  while (get('nsContestants1') > 0) {
     adventureMacro($location`Fastest Adventurer Contest`, Macro.kill());
   }
   var statComp: Location = $location`none`;
@@ -1360,7 +1353,7 @@ export function sorceressTowerTest() {
       statComp = $location`Strongest Adventurer Contest`;
       break;
   }
-  while (getPropertyInt('nsContestants2') > 0) {
+  while (get('nsContestants2') > 0) {
     adventureMacro(statComp, Macro.kill());
   }
   var elemComp: Location = $location`none`;
@@ -1381,7 +1374,7 @@ export function sorceressTowerTest() {
       elemComp = $location`Stinkiest Adventurer Contest`;
       break;
   }
-  while (getPropertyInt('nsContestants3') > 0) {
+  while (get('nsContestants3') > 0) {
     adventureMacro(elemComp, Macro.kill());
   }
   if (questStep('questL13Final') == 2) {
@@ -1418,7 +1411,7 @@ export function sorceressTowerTest() {
     } else if (itemAmount($item`Sneaky Pete's Key`) == 0) {
       setChoice(1414, 3);
     }
-    if (getPropertyBoolean('lockPicked') == false) {
+    if (get('lockPicked') == false) {
       useSkill(1, $skill`Lock Picking`);
     }
     retrieveItem($item`Boris's Key`, 1);

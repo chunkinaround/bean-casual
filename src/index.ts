@@ -11,14 +11,11 @@ import {
   fileToBuffer,
   myInebriety,
   myFullness,
-  friarsAvailable,
-  use,
   council,
 } from 'kolmafia';
-import { rawListeners } from 'node:process';
+import { get } from 'libram';
 import { intro } from './intro';
 import { level } from './level';
-import { getPropertyBoolean } from './lib';
 import {
   billiards,
   war,
@@ -66,7 +63,7 @@ export function main() {
   const dietScript = getProperty('bcas_diet');
 
   if (myMeat() > 5000000) {
-    if (getPropertyBoolean('bcas_autoClosetMeat', false)) {
+    if (get('bcas_autoClosetMeat', false)) {
       const closetAmount = myMeat() - 5 * 1000 * 1000;
       print(`You have more than 5M liquid meat! Putting ${closetAmount} in the closet automatically.`, 'blue');
       cliExecute(`closet put ${closetAmount} meat`);
