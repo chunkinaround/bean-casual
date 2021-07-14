@@ -1,7 +1,5 @@
 import {
   print,
-  setProperty,
-  getProperty,
   getLocationMonsters,
   myLocation,
   toMonster,
@@ -25,7 +23,7 @@ import {
   removeProperty,
 } from 'kolmafia';
 import { $skill, $familiar, $effect, Macro as LibramMacro, set, get } from 'libram';
-import { getPropertyInt, myFamiliarWeight, setPropertyInt } from './lib';
+import { myFamiliarWeight } from './lib';
 
 // multiFight() stolen from Aenimus: https://github.com/Aenimus/aen_cocoabo_farm/blob/master/scripts/aen_combat.ash.
 // Thanks! Licensed under MIT license.
@@ -69,25 +67,25 @@ export const MODE_RUN_UNLESS_FREE = 'rununlessfree';
 export const MODE_RUN_UNLESS_MONSTER = 'rununlessmon';
 
 export function setMode(mode: string, arg1: string | null = null, arg2: string | null = null) {
-  setProperty('bcas_combatMode', mode);
-  if (arg1 !== null) setProperty('bcas_combatArg1', arg1);
-  if (arg2 !== null) setProperty('bcas_combatArg2', arg2);
+  set('bcas_combatMode', mode);
+  if (arg1 !== null) set('bcas_combatArg1', arg1);
+  if (arg2 !== null) set('bcas_combatArg2', arg2);
 }
 
 export function getMode() {
-  return getProperty('bcas_combatMode');
+  return get('bcas_combatMode');
 }
 
 export function getArg1() {
-  return getProperty('bcas_combatArg1');
+  return get<string>('bcas_combatArg1');
 }
 
 export function getArg2() {
-  return getProperty('bcas_combatArg2');
+  return get<string>('bcas_combatArg2');
 }
 
 function banishedMonsters() {
-  const banishedstring = getProperty('banishedMonsters');
+  const banishedstring = get('banishedMonsters');
   const banishedComponents = banishedstring.split(':');
   const result: { [index: string]: Monster } = {};
   if (banishedComponents.length < 3) return result;
@@ -121,25 +119,25 @@ export function main(initialRound: number, foe: Monster) {
     } else if (
       myMp() >= 50 &&
       haveSkill($skill`Snokebomb`) &&
-      getPropertyInt('_snokebombUsed') < 3 &&
+      get('_snokebombUsed') < 3 &&
       !usedBanisherInZone(banished, 'snokebomb', loc)
     ) {
       useSkill(1, $skill`Snokebomb`);
     } else if (
       haveSkill($skill`Reflex Hammer`) &&
-      getPropertyInt('ReflexHammerUsed') < 3 &&
+      get('ReflexHammerUsed') < 3 &&
       !usedBanisherInZone(banished, 'Reflex Hammer', loc)
     ) {
       useSkill(1, $skill`Reflex Hammer`);
-    } else if (haveSkill($skill`Macrometeorite`) && getPropertyInt('_macrometeoriteUses') < 10) {
+    } else if (haveSkill($skill`Macrometeorite`) && get('_macrometeoriteUses') < 10) {
       useSkill(1, $skill`Macrometeorite`);
-    } else if (haveSkill($skill`CHEAT CODE: Replace Enemy`) && getPropertyInt('_powerfulGloveBatteryPowerUsed') <= 80) {
-      const originalBattery = getPropertyInt('_powerfulGloveBatteryPowerUsed');
+    } else if (haveSkill($skill`CHEAT CODE: Replace Enemy`) && get('_powerfulGloveBatteryPowerUsed') <= 80) {
+      const originalBattery = get('_powerfulGloveBatteryPowerUsed');
       useSkill(1, $skill`CHEAT CODE: Replace Enemy`);
-      const newBattery = getPropertyInt('_powerfulGloveBatteryPowerUsed');
+      const newBattery = get('_powerfulGloveBatteryPowerUsed');
       if (newBattery === originalBattery) {
         print('WARNING: Mafia is not updating PG battery charge.');
-        setProperty('_powerfulGloveBatteryPowerUsed', '' + (newBattery + 10));
+        set('_powerfulGloveBatteryPowerUsed', newBattery + 10);
       }
       // At this point it comes back to the consult script.
     }
@@ -153,22 +151,22 @@ export function main(initialRound: number, foe: Monster) {
     runaway();
   } else if (mode === MODE_RUN_UNLESS_FREE) {
     if (foe.attributes.includes('FREE')) {
-      print(getProperty('libram_savedMacro'));
+      print(get('libram_savedMacro'));
       Macro.load().submit();
     } else if (
       myFamiliar() === $familiar`Frumious Bandersnatch` &&
       haveEffect($effect`Ode to Booze`) > 0 &&
-      getPropertyInt('_banderRunaways') < myFamiliarWeight() / 5
+      get('_banderRunaways') < myFamiliarWeight() / 5
     ) {
-      const banderRunaways = getPropertyInt('_banderRunaways');
+      const banderRunaways = get('_banderRunaways');
       runaway();
-      if (getPropertyInt('_banderRunaways') === banderRunaways) {
+      if (get('_banderRunaways') === banderRunaways) {
         print('WARNING: Mafia is not tracking bander runaways correctly.');
-        setPropertyInt('_banderRunaways', banderRunaways + 1);
+        set('_banderRunaways', banderRunaways + 1);
       }
-    } else if (haveSkill($skill`Reflex Hammer`) && getPropertyInt('_reflexHammerUsed') < 3) {
+    } else if (haveSkill($skill`Reflex Hammer`) && get('_reflexHammerUsed') < 3) {
       useSkill(1, $skill`Reflex Hammer`);
-    } else if (myMp() >= 50 && haveSkill($skill`Snokebomb`) && getPropertyInt('_snokebombUsed') < 3) {
+    } else if (myMp() >= 50 && haveSkill($skill`Snokebomb`) && get('_snokebombUsed') < 3) {
       useSkill(1, $skill`Snokebomb`);
     } else {
       // non-free, whatever
@@ -221,7 +219,7 @@ export function findMonsterThen(loc: Location, foe: Monster, macro: Macro) {
 }
 
 export function findMonsterSaberYr(loc: Location, foe: Monster) {
-  setProperty('choiceAdventure1387', '3');
+  set('choiceAdventure1387', '3');
   findMonsterThen(loc, foe, Macro.skill($skill`Use the Force`));
 }
 

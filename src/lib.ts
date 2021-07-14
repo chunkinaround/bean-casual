@@ -32,7 +32,7 @@ import {
   create,
   getFuel,
 } from 'kolmafia';
-import { $effect, $skill, $stat, $item } from 'libram';
+import { $effect, $skill, $stat, $item, get } from 'libram';
 
 export function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(n, max));
@@ -56,33 +56,6 @@ export function ensureCreateItem(quantity: number, it: Item) {
   }
 }
 
-export function getPropertyString(name: string, def: string) {
-  const str = getProperty(name);
-  return str === '' ? def : str;
-}
-
-export function getPropertyInt(name: string, default_: number | null = null): number {
-  const str = getProperty(name);
-  if (str === '') {
-    if (default_ === null) throw `Unknown property ${name}.`;
-    else return default_;
-  }
-  return parseInt(str, 10);
-}
-
-export function getPropertyBoolean(name: string, default_: boolean | null = null) {
-  const str = getProperty(name);
-  if (str === '') {
-    if (default_ === null) throw `Unknown property ${name}.`;
-    else return default_;
-  }
-  return str === 'true';
-}
-
-export function setPropertyInt(name: string, value: number) {
-  setProperty(name, value.toString());
-}
-
 export function itemPriority(...items: Item[]): Item {
   if (items.length === 1) return items[0];
   else return itemAmount(items[0]) > 0 ? items[0] : itemPriority(...items.slice(1));
@@ -104,8 +77,8 @@ const priceCaps: { [index: string]: number } = {
   'spice melange': 500000,
   'splendid martini': 10000,
   'stuffing fluffer': 25000,
-  'cornucopia': 30000,
-  'cashew': 9000,
+  cornucopia: 30000,
+  cashew: 9000,
 };
 
 export function getCapped(qty: number, item: Item, maxPrice: number) {
@@ -127,35 +100,27 @@ export function getCapped(qty: number, item: Item, maxPrice: number) {
   if (buy(remaining, item, maxPrice) < remaining) throw `Mall price too high for ${item.name}.`;
 }
 
-export function get(qty: number, item: Item) {
+export function acquire(qty: number, item: Item) {
   getCapped(qty, item, priceCaps[item.name]);
 }
 
 export function eatSafe(qty: number, item: Item) {
-  get(1, item);
+  acquire(1, item);
   if (!eat(qty, item)) throw 'Failed to eat safely';
 }
 
 export function drinkSafe(qty: number, item: Item) {
-  get(1, item);
+  acquire(1, item);
   if (!drink(qty, item)) throw 'Failed to drink safely';
 }
 
 export function chewSafe(qty: number, item: Item) {
-  get(1, item);
+  acquire(1, item);
   if (!chew(qty, item)) throw 'Failed to chew safely';
 }
 
-function propTrue(prop: string | boolean) {
-  if (typeof prop === 'boolean') {
-    return prop as boolean;
-  } else {
-    return getPropertyBoolean(prop as string);
-  }
-}
-
-export function useIfUnused(item: Item, prop: string | boolean, maxPrice: number) {
-  if (!propTrue(prop)) {
+export function useIfUnused(item: Item, prop: string, maxPrice: number) {
+  if (!get(prop)) {
     if (mallPrice(item) <= maxPrice) {
       getCapped(1, item, maxPrice);
       use(1, item);

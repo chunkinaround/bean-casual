@@ -31,9 +31,7 @@ import {
   tryEnsureSkill,
   ensureEffect,
   tryEnsureEffect,
-  getPropertyBoolean,
   trySynthesize,
-  getPropertyInt,
   maximizeCached,
   setChoice,
 } from './lib';
@@ -131,13 +129,13 @@ export function level(useResources = true) {
   }
 
   // Daycare
-  if (getPropertyInt('_daycareGymScavenges') === 0) {
+  if (get('_daycareGymScavenges') === 0) {
     // Free scavenge.
     visitUrl('choice.php?whichchoice=1336&option=2');
   }
 
   // Bastille first.
-  if (getPropertyInt('_bastilleGames') === 0) {
+  if (get('_bastilleGames') === 0) {
     if (availableAmount($item`Bastille Battalion control rig`) === 0) {
       use(1, $item`Bastille Battalion control rig loaner voucher`);
     }
@@ -145,7 +143,7 @@ export function level(useResources = true) {
   }
 
   // Chateau rests.
-  if (getPropertyBoolean('chateauAvailable')) {
+  if (get('chateauAvailable')) {
     buy(1, $item`ceiling fan`);
     if (myPrimestat() === $stat`Muscle`) {
       buy(1, $item`electric muscle stimulator`);
@@ -155,7 +153,7 @@ export function level(useResources = true) {
       buy(1, $item`bowl of potpourri`);
     }
     // Chateau rest
-    while (getPropertyInt('timesRested') < totalFreeRests()) {
+    while (get('timesRested') < totalFreeRests()) {
       visitUrl('place.php?whichplace=chateau&action=chateau_restbox');
     }
   }
@@ -163,7 +161,7 @@ export function level(useResources = true) {
   cliExecute('breakfast');
 
   // LOV Tunnel
-  if (get('loveTunnelAvailable') && !getPropertyBoolean('_loveTunnelUsed') && useResources) {
+  if (get('loveTunnelAvailable') && !get('_loveTunnelUsed') && useResources) {
     useFamiliar($familiar`Galloping Grill`);
     const macro = Macro.if_(
       'monstername LOV Enforcer',
@@ -193,11 +191,11 @@ export function level(useResources = true) {
     if (handlingChoice()) throw 'Did not get all the way through LOV.';
   }
 
-  if (haveFamiliar($familiar`God Lobster`) && getPropertyInt('_godLobsterFights') < 3) {
+  if (haveFamiliar($familiar`God Lobster`) && get('_godLobsterFights') < 3) {
     useFamiliar($familiar`God Lobster`);
     const useGg = haveSkill($skill`Giant Growth`) && mallPrice($item`green mana`) < 8000;
 
-    while (getPropertyInt('_godLobsterFights') < 3) {
+    while (get('_godLobsterFights') < 3) {
       maximizeCached('mainstat, 4exp, equip makeshift garbage shirt');
       // Get stats from the fight.
       setChoice(1310, 3);
@@ -217,7 +215,7 @@ export function level(useResources = true) {
   }
 
   if (
-    getPropertyInt('_sausageFights') === 0 &&
+    get('_sausageFights') === 0 &&
     haveFamiliar($familiar`Pocket Professor`) &&
     availableAmount($item`Kramco Sausage-o-Matic&trade;`) > 0
   ) {
@@ -234,8 +232,8 @@ export function level(useResources = true) {
     adventureCopy($location`"The Outskirts of Cobb's Knob"`, $monster`sausage goblin`);
   }
 
-  while (getPropertyInt('_neverendingPartyFreeTurns') < 10) {
-    if (!getPropertyBoolean('leafletCompleted') && myLevel() >= 9) {
+  while (get('_neverendingPartyFreeTurns') < 10) {
+    if (!get('leafletCompleted') && myLevel() >= 9) {
       visitUrl('council.php');
       cliExecute('leaflet');
     }
